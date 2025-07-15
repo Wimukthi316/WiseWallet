@@ -25,19 +25,23 @@ class Screen06 : AppCompatActivity() {
             insets
         }
 
-        // Navigate to Screen07 when clicking add expenses card
+        // Add this block for profile icon navigation
+        binding.profileIconCard.setOnClickListener {
+            val intent = Intent(this, Profile::class.java)
+            startActivity(intent)
+        }
+
+        // Existing navigation handlers
         binding.addExpensesCard.setOnClickListener {
             val intent = Intent(this, Screen07::class.java)
             startActivity(intent)
         }
 
-        // Navigate to Screen08 when clicking spending summary card
         binding.spendingSummaryCard.setOnClickListener {
             val intent = Intent(this, Screen08::class.java)
             startActivity(intent)
         }
 
-        // Navigate to Screen09 when clicking budget plan card
         binding.budgetPlanCard.setOnClickListener {
             val intent = Intent(this, Screen09::class.java)
             startActivity(intent)

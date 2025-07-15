@@ -7,6 +7,30 @@
     android:background="@color/white"
     tools:context=".Screen06">
 
+    <!-- Profile Icon -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/profileIconCard"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="@color/Blue"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="4dp"
+        app:rippleColor="@color/white"
+        android:layout_gravity="top|end">
+
+        <ImageView
+            android:id="@+id/profileIcon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="12dp"
+            android:src="@drawable/baseline_person_24"
+            android:contentDescription="Profile"
+            app:tint="@color/white" />
+    </com.google.android.material.card.MaterialCardView>
 
     <!-- Main Scrollable Content -->
     <androidx.core.widget.NestedScrollView

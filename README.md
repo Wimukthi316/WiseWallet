@@ -77,10 +77,6 @@ WiseWallet is a comprehensive personal finance management application built for 
         <b>Smart Dashboard</b>
       </td>
       <td align="center">
-        <br/>
-        <b>More Features Coming Soon!</b>
-      </td>
-    </tr>
   </table>
 </div>
 

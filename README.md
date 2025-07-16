@@ -1,7 +1,8 @@
 # 💰 WiseWallet - Smart Financial Management App
 
 <div align="center">
-  <img src="![image2](image2)" alt="WiseWallet Logo" width="300"/>
+  <img src="<img width="1344" height="2992" alt="Screen01" src="https://github.com/user-attachments/assets/562df9d9-fdeb-4b81-a15d-e3dba4501568" />
+" alt="WiseWallet Logo" width="300"/>
   
   **Manage Money, Achieve Goals, Control Finances**
   

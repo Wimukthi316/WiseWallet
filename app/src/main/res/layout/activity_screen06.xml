@@ -46,20 +46,46 @@
             android:layout_height="wrap_content"
             android:paddingBottom="24dp">
 
-            <!-- Balance Summary Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/balanceSummaryCard"
-                android:layout_width="0dp"
+            <!-- Greeting Section -->
+            <TextView
+                android:id="@+id/greetingText"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="16dp"
+                android:text="Good morning"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/usernameText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="4dp"
+                android:text="Samudra"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/greetingText" />
+
+            <!-- Monthly Budget Summary Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/budgetSummaryCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginEnd="20dp"
                 app:cardBackgroundColor="@color/Blue"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toBottomOf="@id/usernameText">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -67,26 +93,37 @@
                     android:padding="24dp">
 
                     <TextView
-                        android:id="@+id/balanceLabel"
+                        android:id="@+id/budgetLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Total Balance"
+                        android:text="Monthly Budget"
                         android:textColor="@color/white"
                         android:textSize="16sp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
-                        android:id="@+id/balanceAmount"
+                        android:id="@+id/budgetAmount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="$2,450.25"
+                        android:text="$0.00"
                         android:textColor="@color/white"
                         android:textSize="32sp"
                         android:textStyle="bold"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/balanceLabel" />
+                        app:layout_constraintTop_toBottomOf="@id/budgetLabel" />
+
+                    <TextView
+                        android:id="@+id/spentAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Spent: $0.00"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/budgetAmount" />
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -95,18 +132,20 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/balanceAmount">
+                        app:layout_constraintTop_toBottomOf="@id/spentAmount">
 
                         <ImageView
+                            android:id="@+id/changeIcon"
                             android:layout_width="22dp"
                             android:layout_height="22dp"
                             android:src="@drawable/goal" />
 
                         <TextView
+                            android:id="@+id/changeText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
-                            android:text="+6.5% from last month"
+                            android:text="No data from last month"
                             android:textColor="@color/white"
                             android:textSize="14sp" />
                     </LinearLayout>
@@ -128,7 +167,7 @@
                 app:strokeWidth="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/balanceSummaryCard">
+                app:layout_constraintTop_toBottomOf="@id/budgetSummaryCard">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"

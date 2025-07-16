@@ -15,6 +15,8 @@ import java.util.*
 class DataManager(private val context: Context) {
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences("ExpensePrefs", Context.MODE_PRIVATE)
+    private val userPreferences: SharedPreferences =
+        context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
     private val gson = Gson()
     private val EXPENSES_KEY = "expenses"
     private val _expensesLiveData = MutableLiveData<List<Expense>>()
@@ -53,6 +55,20 @@ class DataManager(private val context: Context) {
         // Initialize with current data
         updateExpensesData()
         updateBudgetData()
+    }
+
+    // User management methods
+    fun getCurrentUser(): User? {
+        val userJson = userPreferences.getString("CURRENT_USER", null)
+        return if (userJson != null) {
+            gson.fromJson(userJson, User::class.java)
+        } else {
+            null
+        }
+    }
+
+    fun getCurrentUsername(): String {
+        return getCurrentUser()?.username ?: "User"
     }
 
     // Expense methods

@@ -82,6 +82,54 @@ class DataManager(private val context: Context) {
         return getCurrentUser()?.username ?: "DefaultUser"
     }
 
+    // Method to migrate user data when username changes
+    fun migrateUserData(oldUsername: String, newUsername: String) {
+        // Migrate expenses
+        val oldExpensePrefs = context.getSharedPreferences("${oldUsername}_ExpensePrefs", Context.MODE_PRIVATE)
+        val newExpensePrefs = context.getSharedPreferences("${newUsername}_ExpensePrefs", Context.MODE_PRIVATE)
+
+        val expensesJson = oldExpensePrefs.getString(EXPENSES_KEY, null)
+        if (expensesJson != null) {
+            newExpensePrefs.edit().putString(EXPENSES_KEY, expensesJson).apply()
+        }
+
+        // Migrate budget data
+        val oldBudgetPrefs = context.getSharedPreferences("${oldUsername}_BudgetPrefs", Context.MODE_PRIVATE)
+        val newBudgetPrefs = context.getSharedPreferences("${newUsername}_BudgetPrefs", Context.MODE_PRIVATE)
+
+        val monthlyBudget = oldBudgetPrefs.getFloat(MONTHLY_BUDGET_KEY, 0f)
+        val categoryBudgets = oldBudgetPrefs.getString(CATEGORY_BUDGETS_KEY, null)
+
+        if (monthlyBudget > 0) {
+            newBudgetPrefs.edit().putFloat(MONTHLY_BUDGET_KEY, monthlyBudget).apply()
+        }
+        if (categoryBudgets != null) {
+            newBudgetPrefs.edit().putString(CATEGORY_BUDGETS_KEY, categoryBudgets).apply()
+        }
+
+        // Migrate notification preferences
+        val oldNotificationPrefs = context.getSharedPreferences("${oldUsername}_NotificationPrefs", Context.MODE_PRIVATE)
+        val newNotificationPrefs = context.getSharedPreferences("${newUsername}_NotificationPrefs", Context.MODE_PRIVATE)
+
+        val monthlyNotified = oldNotificationPrefs.getBoolean(MONTHLY_NOTIFIED_KEY, false)
+        val categoryNotified = oldNotificationPrefs.getString(CATEGORY_NOTIFIED_KEY, null)
+
+        if (monthlyNotified) {
+            newNotificationPrefs.edit().putBoolean(MONTHLY_NOTIFIED_KEY, monthlyNotified).apply()
+        }
+        if (categoryNotified != null) {
+            newNotificationPrefs.edit().putString(CATEGORY_NOTIFIED_KEY, categoryNotified).apply()
+        }
+
+        // Clear old data
+        oldExpensePrefs.edit().clear().apply()
+        oldBudgetPrefs.edit().clear().apply()
+        oldNotificationPrefs.edit().clear().apply()
+
+        // Refresh current data
+        refreshUserData()
+    }
+
     // Method to clear user data when logging out
     fun clearCurrentUserData() {
         // Get current username before clearing
@@ -96,6 +144,12 @@ class DataManager(private val context: Context) {
             .edit().clear().apply()
 
         // Clear current user from UserPrefs
+        userPreferences.edit().remove("CURRENT_USER").apply()
+    }
+
+    // Method to clear only session, not user data
+    fun clearSession() {
+        // Only clear current user session, not user data
         userPreferences.edit().remove("CURRENT_USER").apply()
     }
 

@@ -154,7 +154,7 @@ class Profile : AppCompatActivity() {
             // Show warning about username change - NO TOAST here
             AlertDialog.Builder(this)
                 .setTitle("Username Change Warning")
-                .setMessage("Changing your username will require you to log in again with your new username. Your data will be preserved but linked to the new username. Continue?")
+                .setMessage("Changing your username will migrate all your data (expenses, budgets) to the new username. You'll need to log in again with your new username. Continue?")
                 .setPositiveButton("Yes, Change Username") { _, _ ->
                     updateUserProfile(newUsername, newEmail, true, emailChanged)
                 }
@@ -170,6 +170,8 @@ class Profile : AppCompatActivity() {
     }
 
     private fun updateUserProfile(newUsername: String, newEmail: String, usernameChanged: Boolean, emailChanged: Boolean) {
+        val oldUsername = currentUser.username
+
         // Create updated user object
         val updatedUser = User(
             username = newUsername,
@@ -192,14 +194,19 @@ class Profile : AppCompatActivity() {
             .putString("CURRENT_USER", Gson().toJson(updatedUser))
             .apply()
 
+        // If username changed, migrate all user data
+        if (usernameChanged) {
+            dataManager.migrateUserData(oldUsername, newUsername)
+        }
+
         // Update currentUser reference
         currentUser = updatedUser
 
         if (usernameChanged || emailChanged) {
             // If username or email changed, logout and redirect to login
             val message = when {
-                usernameChanged && emailChanged -> "Username and email updated. Please log in again with your new credentials."
-                usernameChanged -> "Username updated. Please log in again with your new username."
+                usernameChanged && emailChanged -> "Username and email updated. Your data has been migrated. Please log in again with your new credentials."
+                usernameChanged -> "Username updated. Your data has been migrated. Please log in again with your new username."
                 emailChanged -> "Email updated. Please log in again with your new email."
                 else -> "Profile updated successfully"
             }
@@ -209,7 +216,7 @@ class Profile : AppCompatActivity() {
             // Wait a moment before logout to show the toast
             binding.root.postDelayed({
                 performLogout()
-            }, 2000)
+            }, 3000) // Longer delay to read migration message
         } else {
             Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show()
             finish()
@@ -229,7 +236,7 @@ class Profile : AppCompatActivity() {
 
     private fun performLogout() {
         // Only clear current user session, not user data
-        sharedPreferences.edit().remove("CURRENT_USER").apply()
+        dataManager.clearSession()
 
         // Redirect to login screen
         redirectToLogin()

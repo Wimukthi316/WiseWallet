@@ -1,8 +1,7 @@
 # 💰 WiseWallet - Smart Financial Management App
 
 <div align="center">
-  <img src="<img width="1344" height="2992" alt="Screen01" src="https://github.com/user-attachments/assets/562df9d9-fdeb-4b81-a15d-e3dba4501568" />
-" alt="WiseWallet Logo" width="300"/>
+  <img src="app/WiseWalletIMG/Screen01.png" alt="WiseWallet Logo" width="300"/>
   
   **Manage Money, Achieve Goals, Control Finances**
   
@@ -51,21 +50,33 @@ WiseWallet is a comprehensive personal finance management application built for 
   <table>
     <tr>
       <td align="center">
-        <img src="![image3](image3)" alt="Onboarding" width="200"/>
+        <img src="app/WiseWalletIMG/Screen01.png" alt="App Launch Screen" width="200"/>
+        <br/>
+        <b>Welcome Screen</b>
+      </td>
+      <td align="center">
+        <img src="app/WiseWalletIMG/Screen02.png" alt="Onboarding" width="200"/>
         <br/>
         <b>Onboarding</b>
       </td>
       <td align="center">
-        <img src="![image4](image4)" alt="Sign Up" width="200"/>
+        <img src="app/WiseWalletIMG/Screen03.png" alt="Sign Up" width="200"/>
         <br/>
         <b>Registration</b>
       </td>
-      <td align="center">
-        <img src="![image5](image5)" alt="Dashboard" width="200"/>
-        <br/>
-        <b>Dashboard</b>
-      </td>
     </tr>
+    <tr>
+      <td align="center">
+        <img src="app/WiseWalletIMG/Screen04.png" alt="Login Screen" width="200"/>
+        <br/>
+        <b>Login</b>
+      </td>
+      <td align="center">
+        <img src="app/WiseWalletIMG/Screen05.png" alt="Dashboard" width="200"/>
+        <br/>
+        <b>Smart Dashboard</b>
+      </td>
+      <td align="center">
   </table>
 </div>
 
@@ -108,7 +119,7 @@ WiseWallet follows the MVVM (Model-View-ViewModel) architecture pattern:
 ### Installation
 1. Clone the repository
    ```bash
-   git clone https://github.com/yourusername/WiseWallet.git
+   git clone https://github.com/Wimukthi316/WiseWallet.git
    ```
 
 2. Open the project in Android Studio
@@ -161,6 +172,18 @@ The core component that handles:
 - Password confirmation during registration
 - Data integrity checks
 
+## 🎯 App Flow
+
+<div align="center">
+  <img src="app/WiseWalletIMG/Screen01.png" alt="App Flow" width="150"/>
+  ➡️
+  <img src="app/WiseWalletIMG/Screen02.png" alt="App Flow" width="150"/>
+  ➡️
+  <img src="app/WiseWalletIMG/Screen03.png" alt="App Flow" width="150"/>
+  ➡️
+  <img src="app/WiseWalletIMG/Screen05.png" alt="App Flow" width="150"/>
+</div>
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
@@ -171,22 +194,10 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 👨‍💻 Author
 
 **Wimukthi316**
-- GitHub: [@yourusername](https://github.com/yourusername)
-
-## 🙏 Acknowledgments
-
-- Material Design guidelines by Google
-- Android Developer documentation
-- Kotlin community for excellent language support
-
----
+- GitHub: [@Wimukthi316](https://github.com/Wimukthi316)
 
 <div align="center">
   <p><strong>📱 Take control of your finances with WiseWallet! 💰</strong></p>

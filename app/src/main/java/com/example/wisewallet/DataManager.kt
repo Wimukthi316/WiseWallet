@@ -13,11 +13,17 @@ import java.text.NumberFormat
 import java.util.*
 
 class DataManager(private val context: Context) {
-    private val sharedPreferences: SharedPreferences =
-        context.getSharedPreferences("ExpensePrefs", Context.MODE_PRIVATE)
     private val userPreferences: SharedPreferences =
         context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
     private val gson = Gson()
+
+    // User-specific SharedPreferences
+    private val currentUsername = getCurrentUsername()
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences("${currentUsername}_ExpensePrefs", Context.MODE_PRIVATE)
+    private val budgetPrefs = context.getSharedPreferences("${currentUsername}_BudgetPrefs", Context.MODE_PRIVATE)
+    private val notificationPrefs = context.getSharedPreferences("${currentUsername}_NotificationPrefs", Context.MODE_PRIVATE)
+
     private val EXPENSES_KEY = "expenses"
     private val _expensesLiveData = MutableLiveData<List<Expense>>()
 
@@ -25,22 +31,18 @@ class DataManager(private val context: Context) {
     val expensesLiveData: LiveData<List<Expense>> = _expensesLiveData
 
     // Budget Preferences
-    private val BUDGET_PREFS = "budget_prefs"
     private val MONTHLY_BUDGET_KEY = "monthly_budget"
     private val CATEGORY_BUDGETS_KEY = "category_budgets"
 
     // Notification tracking
-    private val NOTIFICATION_PREFS = "notification_prefs"
     private val MONTHLY_NOTIFIED_KEY = "monthly_notified"
     private val CATEGORY_NOTIFIED_KEY = "category_notified"
-    private val notificationPrefs = context.getSharedPreferences(NOTIFICATION_PREFS, Context.MODE_PRIVATE)
 
     // Notification constants
     private val CHANNEL_ID = "budget_alerts_channel"
     private val MONTHLY_NOTIFICATION_ID = 1001
     private val CATEGORY_NOTIFICATION_BASE_ID = 2000
 
-    private val budgetPrefs = context.getSharedPreferences(BUDGET_PREFS, Context.MODE_PRIVATE)
     private val _budgetLiveData = MutableLiveData<BudgetData>()
     val budgetLiveData: LiveData<BudgetData> = _budgetLiveData
     private val currencyFormatter = NumberFormat.getCurrencyInstance()
@@ -68,7 +70,24 @@ class DataManager(private val context: Context) {
     }
 
     fun getCurrentUsername(): String {
-        return getCurrentUser()?.username ?: "User"
+        return getCurrentUser()?.username ?: "DefaultUser"
+    }
+
+    // Method to clear user data when logging out
+    fun clearCurrentUserData() {
+        // Clear all user-specific preferences
+        sharedPreferences.edit().clear().apply()
+        budgetPrefs.edit().clear().apply()
+        notificationPrefs.edit().clear().apply()
+
+        // Clear current user from UserPrefs
+        userPreferences.edit().remove("CURRENT_USER").apply()
+    }
+
+    // Method to refresh data when user changes
+    fun refreshUserData() {
+        updateExpensesData()
+        updateBudgetData()
     }
 
     // Expense methods

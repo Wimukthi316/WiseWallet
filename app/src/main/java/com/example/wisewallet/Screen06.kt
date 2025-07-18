@@ -129,7 +129,7 @@ class Screen06 : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        // Profile icon navigation
+        // Profile icon navigation - direct to Profile activity
         binding.profileIconCard.setOnClickListener {
             val intent = Intent(this, Profile::class.java)
             startActivity(intent)

@@ -72,7 +72,15 @@ class Screen05 : AppCompatActivity() {
             return false
         }
 
+        // Save the current user for this session
+        saveCurrentUser(user)
         return true
+    }
+
+    private fun saveCurrentUser(user: User) {
+        val editor = sharedPreferences.edit()
+        editor.putString("CURRENT_USER", Gson().toJson(user))
+        editor.apply()
     }
 
     private fun navigateToScreen06() {

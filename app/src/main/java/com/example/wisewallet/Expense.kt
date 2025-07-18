@@ -10,7 +10,8 @@ data class Expense(
     val title: String,
     val category: String,
     val amount: Double,
-    val date: Date
+    val date: Date,
+    val username: String = "" // Add username field for additional safety
 ) : Parcelable {
     // For proper JSON serialization of Date objects
     fun toMap(): Map<String, Any> {
@@ -19,7 +20,8 @@ data class Expense(
             "title" to title,
             "category" to category,
             "amount" to amount,
-            "date" to date.time
+            "date" to date.time,
+            "username" to username
         )
     }
 
@@ -30,7 +32,8 @@ data class Expense(
                 title = map["title"] as String,
                 category = map["category"] as String,
                 amount = map["amount"] as Double,
-                date = Date((map["date"] as Double).toLong())
+                date = Date((map["date"] as Double).toLong()),
+                username = map["username"] as? String ?: ""
             )
         }
     }

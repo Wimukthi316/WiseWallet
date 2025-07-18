@@ -156,13 +156,15 @@ class Screen07 : AppCompatActivity() {
         val category = binding.categoryDropdown.text.toString().trim()
         val amount = binding.amountInput.text.toString().trim().toDouble()
         val date = calendar.time
+        val currentUsername = dataManager.getCurrentUsername()
 
         if (editingExpense != null) {
             val updatedExpense = editingExpense!!.copy(
                 title = title,
                 category = category,
                 amount = amount,
-                date = date
+                date = date,
+                username = currentUsername
             )
             dataManager.updateExpense(updatedExpense)
             Toast.makeText(this, "Expense updated", Toast.LENGTH_SHORT).show()
@@ -172,7 +174,8 @@ class Screen07 : AppCompatActivity() {
                 title = title,
                 category = category,
                 amount = amount,
-                date = date
+                date = date,
+                username = currentUsername
             )
             dataManager.addExpense(newExpense)
             Toast.makeText(this, "Expense saved", Toast.LENGTH_SHORT).show()

@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -15,6 +16,7 @@ class Profile : AppCompatActivity() {
 
     private lateinit var binding: ActivityProfileBinding
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var dataManager: DataManager
     private lateinit var currentUser: User
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,6 +26,7 @@ class Profile : AppCompatActivity() {
         setContentView(binding.root)
 
         sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+        dataManager = DataManager(this)
         loadUserData()
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -32,6 +35,10 @@ class Profile : AppCompatActivity() {
             insets
         }
 
+        setupClickListeners()
+    }
+
+    private fun setupClickListeners() {
         binding.backButton.setOnClickListener {
             finish()
         }
@@ -39,13 +46,11 @@ class Profile : AppCompatActivity() {
         binding.saveProfileButton.setOnClickListener {
             if (validateProfileInputs()) {
                 saveUpdatedProfile()
-                Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                finish()
             }
         }
 
         binding.logoutButton.setOnClickListener {
-            logoutUser()
+            showLogoutConfirmation()
         }
     }
 
@@ -56,12 +61,25 @@ class Profile : AppCompatActivity() {
                 binding.usernameEditText.setText(user.username)
                 binding.emailEditText.setText(user.email)
                 binding.phoneEditText.setText(user.phone)
+
+                // Display current user info
+                displayUserInfo(user)
             }
         } else {
             User("", "", "", "").also {
                 Toast.makeText(this, "No user data found", Toast.LENGTH_SHORT).show()
+                // If no user data, redirect to login
+                redirectToLogin()
             }
         }
+    }
+
+    private fun displayUserInfo(user: User) {
+        // You can add TextViews to show current user info
+        // For now, just ensure the EditTexts are populated
+        binding.usernameEditText.setText(user.username)
+        binding.emailEditText.setText(user.email)
+        binding.phoneEditText.setText(user.phone)
     }
 
     private fun validateProfileInputs(): Boolean {
@@ -88,23 +106,102 @@ class Profile : AppCompatActivity() {
     }
 
     private fun saveUpdatedProfile() {
-        currentUser = User(
-            username = binding.usernameEditText.text.toString().trim(),
-            email = binding.emailEditText.text.toString().trim(),
+        val newUsername = binding.usernameEditText.text.toString().trim()
+        val newEmail = binding.emailEditText.text.toString().trim()
+        val oldUsername = currentUser.username
+        val oldEmail = currentUser.email
+
+        // Check if username has changed
+        val usernameChanged = oldUsername != newUsername
+        val emailChanged = oldEmail != newEmail
+
+        if (usernameChanged) {
+            // Show warning about username change - NO TOAST here
+            AlertDialog.Builder(this)
+                .setTitle("Username Change Warning")
+                .setMessage("Changing your username will require you to log in again with your new username. Your data will be preserved but linked to the new username. Continue?")
+                .setPositiveButton("Yes, Change Username") { _, _ ->
+                    updateUserProfile(newUsername, newEmail, true, emailChanged)
+                }
+                .setNegativeButton("Cancel") { _, _ ->
+                    // Revert username field
+                    binding.usernameEditText.setText(oldUsername)
+                }
+                .setCancelable(false) // Prevent dismissing by touching outside
+                .show()
+        } else {
+            updateUserProfile(newUsername, newEmail, false, emailChanged)
+        }
+    }
+
+    private fun updateUserProfile(newUsername: String, newEmail: String, usernameChanged: Boolean, emailChanged: Boolean) {
+        // Create updated user object
+        val updatedUser = User(
+            username = newUsername,
+            email = newEmail,
             password = currentUser.password, // Keep the same password
             phone = binding.phoneEditText.text.toString().trim()
         )
 
+        // Save updated user data
         sharedPreferences.edit()
-            .putString("CURRENT_USER", Gson().toJson(currentUser))
+            .putString("CURRENT_USER", Gson().toJson(updatedUser))
             .apply()
+
+        // Update currentUser reference
+        currentUser = updatedUser
+
+        if (usernameChanged || emailChanged) {
+            // If username or email changed, logout and redirect to login
+            val message = when {
+                usernameChanged && emailChanged -> "Username and email updated. Please log in again with your new credentials."
+                usernameChanged -> "Username updated. Please log in again with your new username."
+                emailChanged -> "Email updated. Please log in again with your new email."
+                else -> "Profile updated successfully"
+            }
+
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+
+            // Wait a moment before logout to show the toast
+            binding.root.postDelayed({
+                performLogout()
+            }, 2000)
+        } else {
+            Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show()
+            finish()
+        }
     }
 
-    private fun logoutUser() {
+    private fun showLogoutConfirmation() {
+        AlertDialog.Builder(this)
+            .setTitle("Logout")
+            .setMessage("Are you sure you want to logout?")
+            .setPositiveButton("Yes") { _, _ ->
+                performLogout()
+            }
+            .setNegativeButton("No", null)
+            .show()
+    }
+
+    private fun performLogout() {
+        // Clear user data using DataManager
+        dataManager.clearCurrentUserData()
+
+        // Redirect to login screen
+        redirectToLogin()
+    }
+
+    private fun redirectToLogin() {
         val intent = Intent(this, Screen05::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)
         finish()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh user data when returning to profile
+        loadUserData()
     }
 }

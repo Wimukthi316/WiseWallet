@@ -228,8 +228,8 @@ class Profile : AppCompatActivity() {
     }
 
     private fun performLogout() {
-        // Clear user data using DataManager
-        dataManager.clearCurrentUserData()
+        // Only clear current user session, not user data
+        sharedPreferences.edit().remove("CURRENT_USER").apply()
 
         // Redirect to login screen
         redirectToLogin()

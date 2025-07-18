@@ -160,9 +160,8 @@ class Screen06 : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Refresh data when returning to this screen
-        dataManager.updateBudgetData()
-        // Also refresh greeting in case user data changed
+        // Refresh all data when returning to this screen
+        dataManager.refreshUserData()
         setupGreeting()
     }
 }

@@ -10,6 +10,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.wisewallet.databinding.ActivityScreen04Binding
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class Screen04 : AppCompatActivity() {
 
@@ -77,20 +78,53 @@ class Screen04 : AppCompatActivity() {
             return false
         }
 
+        // Check if user already exists
+        if (isUserExists(email, username)) {
+            Toast.makeText(this, "User with this email or username already exists", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
         return true
     }
 
+    private fun isUserExists(email: String, username: String): Boolean {
+        val users = getAllUsers()
+        return users.any { it.email == email || it.username == username }
+    }
+
+    private fun getAllUsers(): List<User> {
+        val usersJson = sharedPreferences.getString("ALL_USERS", null)
+        return if (usersJson != null) {
+            val type = object : TypeToken<List<User>>() {}.type
+            Gson().fromJson(usersJson, type) ?: emptyList()
+        } else {
+            emptyList()
+        }
+    }
+
     private fun saveUserData() {
-        val user = User(
+        val newUser = User(
             username = binding.usernameEditText.text.toString().trim(),
             email = binding.emailEditText.text.toString().trim(),
             password = binding.passwordEditText.text.toString(),
             phone = binding.contactEditText.text.toString().trim()
         )
 
+        // Get existing users
+        val users = getAllUsers().toMutableList()
+
+        // Add new user
+        users.add(newUser)
+
+        // Save all users
         val editor = sharedPreferences.edit()
-        editor.putString("CURRENT_USER", Gson().toJson(user))
+        editor.putString("ALL_USERS", Gson().toJson(users))
+
+        // Set current user
+        editor.putString("CURRENT_USER", Gson().toJson(newUser))
         editor.apply()
+
+        Toast.makeText(this, "Account created successfully", Toast.LENGTH_SHORT).show()
     }
 
     private fun navigateToScreen05() {

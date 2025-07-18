@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.wisewallet.databinding.ActivityScreen05Binding
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class Screen05 : AppCompatActivity() {
 
@@ -46,6 +47,16 @@ class Screen05 : AppCompatActivity() {
         }
     }
 
+    private fun getAllUsers(): List<User> {
+        val usersJson = sharedPreferences.getString("ALL_USERS", null)
+        return if (usersJson != null) {
+            val type = object : TypeToken<List<User>>() {}.type
+            Gson().fromJson(usersJson, type) ?: emptyList()
+        } else {
+            emptyList()
+        }
+    }
+
     private fun validateLogin(): Boolean {
         val email = binding.usernameEditText.text.toString().trim()
         val password = binding.passwordEditText.text.toString()
@@ -60,19 +71,21 @@ class Screen05 : AppCompatActivity() {
             return false
         }
 
-        val userJson = sharedPreferences.getString("CURRENT_USER", null)
-        if (userJson == null) {
-            Toast.makeText(this, "No user found. Please sign up first", Toast.LENGTH_SHORT).show()
+        // Get all users
+        val users = getAllUsers()
+        if (users.isEmpty()) {
+            Toast.makeText(this, "No users found. Please sign up first", Toast.LENGTH_SHORT).show()
             return false
         }
 
-        val user = Gson().fromJson(userJson, User::class.java)
-        if (user.email != email || user.password != password) {
-            Toast.makeText(this, "Invalid credentials", Toast.LENGTH_SHORT).show()
+        // Find user by email and password
+        val user = users.find { it.email == email && it.password == password }
+        if (user == null) {
+            Toast.makeText(this, "Invalid email or password", Toast.LENGTH_SHORT).show()
             return false
         }
 
-        // Save the current user for this session
+        // Set current user
         saveCurrentUser(user)
         return true
     }

@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.wisewallet.databinding.ActivityProfileBinding
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class Profile : AppCompatActivity() {
 
@@ -52,6 +53,22 @@ class Profile : AppCompatActivity() {
         binding.logoutButton.setOnClickListener {
             showLogoutConfirmation()
         }
+    }
+
+    private fun getAllUsers(): List<User> {
+        val usersJson = sharedPreferences.getString("ALL_USERS", null)
+        return if (usersJson != null) {
+            val type = object : TypeToken<List<User>>() {}.type
+            Gson().fromJson(usersJson, type) ?: emptyList()
+        } else {
+            emptyList()
+        }
+    }
+
+    private fun saveAllUsers(users: List<User>) {
+        val editor = sharedPreferences.edit()
+        editor.putString("ALL_USERS", Gson().toJson(users))
+        editor.apply()
     }
 
     private fun loadUserData() {
@@ -102,6 +119,24 @@ class Profile : AppCompatActivity() {
             return false
         }
 
+        // Check if username or email is taken by another user
+        val users = getAllUsers()
+        val existingUser = users.find {
+            (it.username == username || it.email == email) &&
+                    it.username != currentUser.username &&
+                    it.email != currentUser.email
+        }
+
+        if (existingUser != null) {
+            if (existingUser.username == username) {
+                binding.usernameEditText.error = "Username already taken"
+            }
+            if (existingUser.email == email) {
+                binding.emailEditText.error = "Email already in use"
+            }
+            return false
+        }
+
         return true
     }
 
@@ -143,7 +178,16 @@ class Profile : AppCompatActivity() {
             phone = binding.phoneEditText.text.toString().trim()
         )
 
-        // Save updated user data
+        // Update user in the users list
+        val users = getAllUsers().toMutableList()
+        val userIndex = users.indexOfFirst { it.username == currentUser.username && it.email == currentUser.email }
+
+        if (userIndex != -1) {
+            users[userIndex] = updatedUser
+            saveAllUsers(users)
+        }
+
+        // Save updated current user
         sharedPreferences.edit()
             .putString("CURRENT_USER", Gson().toJson(updatedUser))
             .apply()

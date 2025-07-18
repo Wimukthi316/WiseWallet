@@ -17,12 +17,21 @@ class DataManager(private val context: Context) {
         context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
     private val gson = Gson()
 
-    // User-specific SharedPreferences
-    private val currentUsername = getCurrentUsername()
-    private val sharedPreferences: SharedPreferences =
-        context.getSharedPreferences("${currentUsername}_ExpensePrefs", Context.MODE_PRIVATE)
-    private val budgetPrefs = context.getSharedPreferences("${currentUsername}_BudgetPrefs", Context.MODE_PRIVATE)
-    private val notificationPrefs = context.getSharedPreferences("${currentUsername}_NotificationPrefs", Context.MODE_PRIVATE)
+    // Dynamic SharedPreferences that always use current user
+    private fun getSharedPreferences(): SharedPreferences {
+        val username = getCurrentUsername()
+        return context.getSharedPreferences("${username}_ExpensePrefs", Context.MODE_PRIVATE)
+    }
+
+    private fun getBudgetPrefs(): SharedPreferences {
+        val username = getCurrentUsername()
+        return context.getSharedPreferences("${username}_BudgetPrefs", Context.MODE_PRIVATE)
+    }
+
+    private fun getNotificationPrefs(): SharedPreferences {
+        val username = getCurrentUsername()
+        return context.getSharedPreferences("${username}_NotificationPrefs", Context.MODE_PRIVATE)
+    }
 
     private val EXPENSES_KEY = "expenses"
     private val _expensesLiveData = MutableLiveData<List<Expense>>()
@@ -75,10 +84,16 @@ class DataManager(private val context: Context) {
 
     // Method to clear user data when logging out
     fun clearCurrentUserData() {
+        // Get current username before clearing
+        val currentUsername = getCurrentUsername()
+
         // Clear all user-specific preferences
-        sharedPreferences.edit().clear().apply()
-        budgetPrefs.edit().clear().apply()
-        notificationPrefs.edit().clear().apply()
+        context.getSharedPreferences("${currentUsername}_ExpensePrefs", Context.MODE_PRIVATE)
+            .edit().clear().apply()
+        context.getSharedPreferences("${currentUsername}_BudgetPrefs", Context.MODE_PRIVATE)
+            .edit().clear().apply()
+        context.getSharedPreferences("${currentUsername}_NotificationPrefs", Context.MODE_PRIVATE)
+            .edit().clear().apply()
 
         // Clear current user from UserPrefs
         userPreferences.edit().remove("CURRENT_USER").apply()
@@ -97,14 +112,14 @@ class DataManager(private val context: Context) {
 
     fun saveExpenses(expenses: List<Expense>) {
         val json = gson.toJson(expenses)
-        sharedPreferences.edit().putString(EXPENSES_KEY, json).apply()
+        getSharedPreferences().edit().putString(EXPENSES_KEY, json).apply()
         updateExpensesData()
         updateBudgetData()
         checkBudgetExceedances()
     }
 
     fun loadExpenses(): List<Expense> {
-        val json = sharedPreferences.getString(EXPENSES_KEY, null)
+        val json = getSharedPreferences().getString(EXPENSES_KEY, null)
         return if (json != null) {
             val type = object : TypeToken<List<Expense>>() {}.type
             gson.fromJson(json, type) ?: emptyList()
@@ -148,7 +163,7 @@ class DataManager(private val context: Context) {
     }
 
     fun saveMonthlyBudget(amount: Double) {
-        budgetPrefs.edit().putFloat(MONTHLY_BUDGET_KEY, amount.toFloat()).apply()
+        getBudgetPrefs().edit().putFloat(MONTHLY_BUDGET_KEY, amount.toFloat()).apply()
         // When budget is changed, reset notification status
         resetMonthlyNotificationStatus()
         updateBudgetData()
@@ -156,13 +171,13 @@ class DataManager(private val context: Context) {
     }
 
     fun getMonthlyBudget(): Double {
-        return budgetPrefs.getFloat(MONTHLY_BUDGET_KEY, 0f).toDouble()
+        return getBudgetPrefs().getFloat(MONTHLY_BUDGET_KEY, 0f).toDouble()
     }
 
     fun saveCategoryBudget(category: String, amount: Double) {
         val budgets = getCategoryBudgets().toMutableMap()
         budgets[category] = amount
-        budgetPrefs.edit().putString(CATEGORY_BUDGETS_KEY, gson.toJson(budgets)).apply()
+        getBudgetPrefs().edit().putString(CATEGORY_BUDGETS_KEY, gson.toJson(budgets)).apply()
         // When budget is changed, reset notification status for this category
         resetCategoryNotificationStatus(category)
         updateBudgetData()
@@ -170,7 +185,7 @@ class DataManager(private val context: Context) {
     }
 
     fun getCategoryBudgets(): Map<String, Double> {
-        val json = budgetPrefs.getString(CATEGORY_BUDGETS_KEY, null)
+        val json = getBudgetPrefs().getString(CATEGORY_BUDGETS_KEY, null)
         return if (json != null) {
             gson.fromJson(json, object : TypeToken<Map<String, Double>>() {}.type)
         } else {
@@ -202,11 +217,11 @@ class DataManager(private val context: Context) {
 
     // New methods for notification management
     private fun resetAllNotificationStatus() {
-        notificationPrefs.edit().clear().apply()
+        getNotificationPrefs().edit().clear().apply()
     }
 
     private fun resetMonthlyNotificationStatus() {
-        notificationPrefs.edit().remove(MONTHLY_NOTIFIED_KEY).apply()
+        getNotificationPrefs().edit().remove(MONTHLY_NOTIFIED_KEY).apply()
     }
 
     private fun resetCategoryNotificationStatus(category: String) {
@@ -216,15 +231,15 @@ class DataManager(private val context: Context) {
     }
 
     private fun markMonthlyBudgetNotified() {
-        notificationPrefs.edit().putBoolean(MONTHLY_NOTIFIED_KEY, true).apply()
+        getNotificationPrefs().edit().putBoolean(MONTHLY_NOTIFIED_KEY, true).apply()
     }
 
     private fun isMonthlyBudgetNotified(): Boolean {
-        return notificationPrefs.getBoolean(MONTHLY_NOTIFIED_KEY, false)
+        return getNotificationPrefs().getBoolean(MONTHLY_NOTIFIED_KEY, false)
     }
 
     private fun getCategoryNotificationStatus(): MutableMap<String, Boolean> {
-        val json = notificationPrefs.getString(CATEGORY_NOTIFIED_KEY, null)
+        val json = getNotificationPrefs().getString(CATEGORY_NOTIFIED_KEY, null)
         return if (json != null) {
             gson.fromJson(json, object : TypeToken<MutableMap<String, Boolean>>() {}.type)
         } else {
@@ -233,7 +248,7 @@ class DataManager(private val context: Context) {
     }
 
     private fun saveCategoryNotificationStatus(statusMap: Map<String, Boolean>) {
-        notificationPrefs.edit().putString(CATEGORY_NOTIFIED_KEY, gson.toJson(statusMap)).apply()
+        getNotificationPrefs().edit().putString(CATEGORY_NOTIFIED_KEY, gson.toJson(statusMap)).apply()
     }
 
     private fun markCategoryBudgetNotified(category: String) {
